@@ -16,7 +16,7 @@ on:
     types: [started]
 
 env:
-  DEVICE: phoenix
+  DEVICE: RMX2001
   DT_LINK: https://github.com/Gofaraway71/OFOX-Device_RMX2151
   DT_PATH: device/realme/RMX2001
   CHAT_ID: ${{ secrets.TEST_CHAT_ID }}
