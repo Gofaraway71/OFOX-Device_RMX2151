@@ -56,7 +56,8 @@ jobs:
              cd ~/OrangeFox_10/sync
              echo 'y' | ./get_fox_10.sh ~/OrangeFox_10/fox_10.0
              cd ~/OrangeFox_10/fox_10.0
-             git clone $DT_LINK $DT_PATH
+             mkdir -p device/realme
+             git clone $DT_LINK $DEVICE
              
        - name: Building OrangeFox Recovery
          run: |
@@ -69,10 +70,10 @@ jobs:
        - name: Uploading recovery image
          run: |
               cd ~/OrangeFox_10/fox_10.0/out/target/product/phoenix
-              curl -F chat_id=$CHAT_ID -F document=@OrangeFox-Unofficial-RMX2001.zip https://api.telegram.org/bot$BOT_TOKEN/sendDocument
-              sudo zip -r9 ofox-RMX2001.zip recovery.img
-              curl -F chat_id=$CHAT_ID -F document=@ofox-RMX2001.zip https://api.telegram.org/bot$BOT_TOKEN/sendDocument
-              curl -sL https://git.io/file-transfer | sh
+              #curl -F chat_id=$CHAT_ID -F document=@OrangeFox-Unofficial-RMX2001.zip https://api.telegram.org/bot$BOT_TOKEN/sendDocument
+              #sudo zip -r9 ofox-RMX2001.zip recovery.img
+              #curl -F chat_id=$CHAT_ID -F document=@ofox-RMX2001.zip https://api.telegram.org/bot$BOT_TOKEN/sendDocument
+              #curl -sL https://git.io/file-transfer | sh
               ./transfer wet OrangeFox-Unofficial-RMX2001.zip
               ./transfer wet OrangeFox-Unofficial-RMX2001.img
               ./transfer wet *.zip
