@@ -16,9 +16,9 @@ on:
     types: [started]
 
 env:
-  DEVICE: miatoll
-  DT_LINK: https://gitlab.com/albatron34000/rmx-2151.git
-  DT_PATH: device/xiaomi/miatoll
+  DEVICE: RMX2001
+  DT_LINK: https://github.com/Gofaraway71/OFOX-Device_RMX2151.git
+  DT_PATH: device/realme/RMX2001
   CHAT_ID: ${{ secrets.TEST_CHAT_ID }}
   BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
   TARGET: recoveryimage
@@ -38,7 +38,7 @@ jobs:
             sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d
             docker rmi `docker images -q`
             sudo apt-get remove account-plugin-facebook account-plugin-flickr account-plugin-jabber account-plugin-salut account-plugin-twitter account-plugin-windows-live account-plugin-yahoo aisleriot brltty duplicity empathy empathy-common example-content gnome-accessibility-themes gnome-contacts gnome-mahjongg gnome-mines gnome-orca gnome-screensaver gnome-sudoku gnome-video-effects gnomine landscape-common libreoffice-avmedia-backend-gstreamer libreoffice-base-core libreoffice-calc libreoffice-common libreoffice-core libreoffice-draw libreoffice-gnome libreoffice-gtk libreoffice-impress libreoffice-math libreoffice-ogltrans libreoffice-pdfimport libreoffice-style-galaxy libreoffice-style-human libreoffice-writer libsane libsane-common mcp-account-manager-uoa python3-uno rhythmbox rhythmbox-plugins rhythmbox-plugin-zeitgeist sane-utils shotwell shotwell-common telepathy-gabble telepathy-haze telepathy-idle telepathy-indicator telepathy-logger telepathy-mission-control-5 telepathy-salut totem totem-common totem-plugins printer-driver-brlaser printer-driver-foo2zjs printer-driver-foo2zjs-common printer-driver-m2300w printer-driver-ptouch printer-driver-splix
-            git config --global user.name "albatron34000"
+            git config --global user.name "Gofaraway71"
             git config --global user.email "aalbatron@gmail.com"         
             sudo -E apt-get -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* mysql* php* 
             sudo -E apt-get clean 
@@ -69,10 +69,10 @@ jobs:
               export ALLOW_MISSING_DEPENDENCIES=true 
               export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1 
               export LC_ALL="C"
-              lunch omni_miatoll-eng &&mka recoveryimage
+              lunch omni_RMX2001-eng &&mka recoveryimage
        - name: Uploading recovery image
          run: |
-              cd ~/OrangeFox_10/fox_10.0/out/target/product/miatoll
+              cd ~/OrangeFox_10/fox_10.0/out/target/product/RMX2001
               #curl -F chat_id=$CHAT_ID -F document=@OrangeFox-Unofficial-$DEVICE.zip https://api.telegram.org/bot$BOT_TOKEN/sendDocument
               #sudo zip -r9 ofox-RMX2001.zip recovery.img
               #curl -F chat_id=$CHAT_ID -F document=@ofox-RMX2001.zip https://api.telegram.org/bot$BOT_TOKEN/sendDocument
