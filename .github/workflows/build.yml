@@ -1,82 +1,45 @@
-name: Building OrangeFox recovery
-
-on:
-#  release:
-#    types: [published]
-#  push:
-#    branches:
-#      - master
-#    paths:
-#      - '.config'
-#  schedule:
-#    - cron: 0 8 * * 5
-# Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-  watch:
-    types: [started]
-
 env:
-  DEVICE: RMX2001
-  DT_LINK: git://github.com/Gofaraway71/OFOX-Device_RMX2151.git
-  DT_PATH: device/realme/RMX2001
-  CHAT_ID: ${{ secrets.TEST_CHAT_ID }}
-  BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-  TARGET: recoveryimage
-  FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER: 1
-  TZ: Asia/Kolkata
+    FOX_SYNC: https://gitlab.com/OrangeFox/sync.git
+    FOX_BRANCH: fox_11.0
+    SYNC_BRANCH: 11.0
+    SYNC_PATH: $HOME/work # Full absolute path. Use "$HOME" instead of "~".
+    DT_LINK: https://github.com/OrangeFoxRecovery/device_xiaomi_sweet.git -b fox_11.0
+    DEVICE: sweet
+    OEM: xiaomi
+    DT_PATH: device/$OEM/$DEVICE
+    TARGET: recoveryimage
+    USE_CCACHE: 1
+    CCACHE_SIZE: 50G
+    CCACHE_DIR: ~/work/.ccache
+    EXTRA_CMD: git clone https://github.com/OrangeFoxRecovery/Avatar.git misc
+    J_VAL: 16
+    OUTPUT: OrangeFox*.zip
 
-jobs:
-  build:
-    runs-on: ubuntu-18.04
+    # Cirrus Specific Vars (Do *NOT* Change)
+    CIRRUS_SHELL: bash
 
-    steps:
-       - name: Checkout
-         uses: actions/checkout@master
-         
-       - name: Initializing environment
-         run: |
-            sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d
-            docker rmi `docker images -q`
-            sudo apt-get remove account-plugin-facebook account-plugin-flickr account-plugin-jabber account-plugin-salut account-plugin-twitter account-plugin-windows-live account-plugin-yahoo aisleriot brltty duplicity empathy empathy-common example-content gnome-accessibility-themes gnome-contacts gnome-mahjongg gnome-mines gnome-orca gnome-screensaver gnome-sudoku gnome-video-effects gnomine landscape-common libreoffice-avmedia-backend-gstreamer libreoffice-base-core libreoffice-calc libreoffice-common libreoffice-core libreoffice-draw libreoffice-gnome libreoffice-gtk libreoffice-impress libreoffice-math libreoffice-ogltrans libreoffice-pdfimport libreoffice-style-galaxy libreoffice-style-human libreoffice-writer libsane libsane-common mcp-account-manager-uoa python3-uno rhythmbox rhythmbox-plugins rhythmbox-plugin-zeitgeist sane-utils shotwell shotwell-common telepathy-gabble telepathy-haze telepathy-idle telepathy-indicator telepathy-logger telepathy-mission-control-5 telepathy-salut totem totem-common totem-plugins printer-driver-brlaser printer-driver-foo2zjs printer-driver-foo2zjs-common printer-driver-m2300w printer-driver-ptouch printer-driver-splix
-            git config --global user.name "Gofaraway71"
-            git config --global user.email "aalbatron@gmail.com"         
-            sudo -E apt-get -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* mysql* php* 
-            sudo -E apt-get clean 
-            sudo -E apt-get -qq update
-            sudo apt install git aria2 -y
-            git clone https://gitlab.com/OrangeFox/misc/scripts 
-            cd scripts
-            sudo bash setup/android_build_env.sh
-            sudo bash setup/install_android_sdk.sh
-            
-       - name: Sync OrangeFox recovery source and device tree
-         run: |
-             mkdir ~/OrangeFox_10
-             cd ~/OrangeFox_10
-             #git clone https://gitlab.com/hraj9258/sync.git
-             git clone https://gitlab.com/OrangeFox/sync.git
-             cd ~/OrangeFox_10/sync
-             echo 'y' | ./get_fox_10.sh ~/OrangeFox_10/fox_10.0
-             
-             cd ~/OrangeFox_10/fox_10.0
-             mkdir -p device/realme
-             git clone $DT_LINK $DEVICE
-             
-       - name: Building OrangeFox Recovery
-         run: |
-              cd ~/OrangeFox_10/fox_10.0
-              source build/envsetup.sh
-              export ALLOW_MISSING_DEPENDENCIES=true 
-              export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1 
-              export LC_ALL="C"
-              lunch omni_RMX2001-eng &&mka recoveryimage
-       - name: Uploading recovery image
-         run: |
-              cd ~/OrangeFox_10/fox_10.0/out/target/product/RMX2001
-              #curl -F chat_id=$CHAT_ID -F document=@OrangeFox-Unofficial-$DEVICE.zip https://api.telegram.org/bot$BOT_TOKEN/sendDocument
-              sudo zip -r9 ofox-RMX2001.zip recovery.img
-              #curl -F chat_id=$CHAT_ID -F document=@ofox-RMX2001.zip https://api.telegram.org/bot$BOT_TOKEN/sendDocument
-              #curl -sL https://git.io/file-transfer | sh
-              ./transfer wet OrangeFox-Unofficial-$DEVICEzip
-              ./transfer wet OrangeFox-Unofficial-$DEVICE.img
-              ./transfer wet *.zip
+    # Telegram
+    TG_CHAT_ID: ENCRYPTED[0003e1cf5276424a5b2afb8c6a39f2d830864e8555b37220bd3bf173f3ef5b8769ab98425d96a76adf64b18241c940dd]
+    TG_TOKEN: ENCRYPTED[03de4105db5d23ec42490965c0a0f79217c1e3366cb152bd9d9a045e22586eba675615e1f08bf1aea3e860d499efde60]
+
+task:
+  name: "Recovery Build"
+  trigger_type: manual
+  timeout_in: 120m
+  container:
+      image: registry.gitlab.com/sushrut1101/docker:latest
+      cpu: 8
+      memory: 32G
+
+  Clone-Dependencies_script:
+      - git clone https://github.com/OrangeFoxRecovery/Recovery-Builder-Common.git common
+
+  Sync_script:
+      - bash common/sync.sh
+
+  Build_script:
+      - bash common/build.sh
+
+  Upload_script:
+      - export TIMEOUT=43200 # Link timeout (in minutes)
+      - bash common/upload.sh
